@@ -135,7 +135,7 @@ Memory Barriers 和 Execution Barriers类似，但是是用来管理资源的读
     vkCmdDispatch( 9 );
 
 ### 3-Subpass Dependencies
- 这种方法和pipeline barriers类似，但是它仅仅是用在表达一个pass内部多个render subpasses之间的同步，而pipeline barriers一般是作用于pass与pass之间。Subpass Dependencies的主体是Attachments，包含有七个信息。。</p>
+ 这种方法和pipeline barriers类似，但是它仅仅是用在表达一个pass内部多个render subpasses之间的同步，而pipeline barriers一般是作用于pass与pass之间。Subpass Dependencies的主体是Attachments，包含有七个信息。</p>
 
  srcSubpass：Source pass 也就是这个dependency之前的subpass。</br>
  dstSubpass：Target pass 是dependency之后的subpass。</p>
