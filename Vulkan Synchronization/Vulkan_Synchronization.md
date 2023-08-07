@@ -135,19 +135,17 @@ Memory Barriers 和 Execution Barriers类似，但是是用来管理资源的读
     vkCmdDispatch( 9 );
 
 ### 3-Subpass Dependencies
- 这种方法和pipeline barriers类似，但是它仅仅是用在表达render subpasses之间的。包含有七个信息。</p>
+ 这种方法和pipeline barriers类似，但是它仅仅是用在表达一个pass内部多个render subpasses之间的同步，而pipeline barriers一般是作用于pass与pass之间。Subpass Dependencies的主体是Attachments，包含有七个信息。。</p>
 
- srcSubpass：Source pass 要在 Target pass之前完成。</br>
- dstSubpass：Traget pass 要等待 Source Pass的结束。</p>
+ srcSubpass：Source pass 也就是这个dependency之前的subpass。</br>
+ dstSubpass：Target pass 是dependency之后的subpass。</p>
  srcStageMask：Source 的Pipeline Stage 要在 Target Stage之前完成。</br>
  dstStageMask：Target Stage 需要等待 Source Stage。</p>
  srcAccessMask：Source 的资源访问需要在 Target的资源访问之前完成。</br>
  dstAccessMask：需要等待Source的资源访问结束之后才开始。</p>
  dependencyFlags：额外的依赖标志，用于更精确地控制依赖关系的行为。</p>
  
- 下面以面以 SaschaWillems 的Vulkan Examples系列里的triangle为例。这里是一个subpass里的两个 Attachment， Depth 和 Color。我们可以看到Depth和Color都需要在外部Pass结束之后才开始自己 Index = 0 的subpass。</br>
- Stage上 Depth限制了一要等上一个subpass的深度测试结束之后才开始这一个pass的深度测试，color则限制了这个pass的color output需要在上一个pass的color output之后。</br>
- Access上，Depth就保证了上一个Pass的写完之后，这一个pass才能进行读写操作。而Color就没有这种问题，因为在Triangle的案例里不会去读区Color attachment的信息，所以Source设置成0就可以。</br>
+ 下面以面以 SaschaWillems 的Vulkan Examples系列里的triangle为例。这里有两个 Attachment， Depth 和 Color。我们首先看到secSubpass 和 dstSubpass，这里表示执行完外部的其他pass 进入index = 0的subpass时候的同步操作。因为这个Triangle特别简单只有一个subpass，所以这里的同步仅限于外部和这个subpass。在depth的attachment上，外部的深度测试需要比该subpass的深度测试更早完成，然后外部需要写入depth然后这个pass才能读和写，对于color来说外部并没有读或者写的操作，所以srcAccess = 0。<br>
 
     // Setup subpass dependencies
     // These will add the implicit attachment layout transitions specified by the attachment descriptions
