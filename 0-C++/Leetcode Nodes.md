@@ -1,6 +1,6 @@
 # Leetcode Notes
 
-## Basic 计算机基础
+## 1-Basic 计算机基础
 
 ### Q1 在编译器里调试
 直接在main里添加数据调试，还是要以ACM模式自己写；</br>
@@ -88,3 +88,100 @@ int main() {
 }
 ```
 ### Q3 拷贝构造和拷贝赋值
+看需求如下：
+```cpp
+class Data
+{
+public:
+    Data(int len)
+    {
+        m_length = len;
+        m_data = new int[len];
+        for (int i = 0; i < len; ++i)
+        {
+            m_data[i] = rand() % 100;
+        }
+    }
+    ~Data()
+    {
+        delete[] m_data;
+    }
+    // 其他代码不用动,在这里填写 开始位置
+    
+    // TODO:拷贝构造
+
+    // TODO:拷贝赋值
+
+
+    // 结束位置
+private:
+    int m_length;
+    int* m_data;
+};
+
+int main()
+{
+    Data a1(5), a2(4);
+    a2 = a2 = a1;
+    Data a3 = a1;
+
+    return 0;
+}
+```
+这里出bug的点是，包含了指针的成员变量，但是没有自己定义拷贝赋值和拷贝构造。
+C++为每个类生成默认的拷贝构造函数和拷贝赋值运算符，它们本质上只是简单地复制对象的每个成员。但是，对于动态分配的内存，这种简单的复制行为会导致问题。(浅拷贝）
+要是浅拷贝的话，那对于指针的数据类型，就有可能出现内存泄漏的问题，所以在这里需要自己定义一个拷贝赋值，和一个拷贝构造。
+
+如下: 对于拷贝赋值，需要把本来的m_data给析构了，然后还要检测是否是自我赋值，不然会出错，用的是memcpy；
+memcpy传入的参数是: 目标对象，源对象，内存大小
+然后传入的参数都是const 和引用传入，操作符重载的话 是return by reference，直接return一个this的指针。
+```cpp
+  // 拷贝构造函数
+  Data(const Data& a) {
+      m_length = a.m_length;
+      m_data = new int[m_length];
+      memcpy(m_data, a.m_data, m_length * sizeof(int));
+  }
+  // 拷贝赋值运算符
+  Data& operator=(const Data& a) {
+      if (this != &a) {
+          delete[] m_data;
+          m_length = a.m_length;
+          m_data = new int[m_length];
+          memcpy(m_data, a.m_data, m_length * sizeof(int));
+      }
+      return *this;
+  }
+  ```
+
+## 2-数组
+### Q1 两数之和
+https://leetcode.cn/problems/two-sum/</br>
+使用unordered_map 去查找 target - nums[i];
+注意这里key 是nums[i] value 是i；
+
+### Q2 快排
+https://leetcode.cn/problems/sort-an-array/</br>
+三个函数实现法</br>
+函数1 实现遍历swap，最后把末尾的主元和i切换位置实现分割</br>
+函数2 随机选择主元并放在末尾</br>
+函数3 左右递归快排,返回是void，因为通过引用实现的参数传入</br>
+
+### Q3 堆排
+https://leetcode.cn/problems/sort-an-array/</br>
+三个函数实现法</br>
+函数1 Heapify</br>
+函数2 BuildHeap</br>
+函数3 HeapSort，每次sort好一个就交换</br>
+
+### Q4 数组中的第k个元素
+https://leetcode.cn/problems/kth-largest-element-in-an-array/</br>
+用堆排，到第k个就停</br>
+
+### Q5 二分查找
+https://leetcode.cn/problems/binary-search/</br>
+经典的排序算法 选中间的然后按照情况选左边或者右边去递归</br>
+
+### Q6 寻找两个正序数组的中卫数
+https://leetcode.cn/problems/median-of-two-sorted-arrays/</br>
+hard题目
