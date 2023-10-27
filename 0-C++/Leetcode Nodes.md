@@ -185,3 +185,13 @@ https://leetcode.cn/problems/binary-search/</br>
 ### Q6 寻找两个正序数组的中卫数
 https://leetcode.cn/problems/median-of-two-sorted-arrays/</br>
 hard题目
+
+### Q7 防止两数相乘过大而overflow的情况
+```cpp
+maxM * 1L * maxN
+```
+这里maxN和maxM有可能超过int的上限，所以需要乘1L，在C++中，1L表示一个long型整数常量1。在你提供的代码中，mh * 1L * mv是用来防止整数溢出的。由于mh和mv可能都是很大的int类型数值，他们的乘积可能会超出int类型的最大值，从而导致溢出。为了防止这种情况，代码中将其中一个因子转换为long型，这样他们的乘积就会在long型的范围内，避免了溢出的可能性。
+
+
+
+
