@@ -212,7 +212,7 @@ layout(binding = 0) uniform MVPBlock {
 
 如下:
 ```cpp
-in_position; // for some types as dvec3 takes 2 locations
+layout(location = 0) in_position; // for some types as dvec3 takes 2 locations
 layout(location = 1) in vec3 in_normal;
 layout(location = 2) in vec3 in_tangent;
 layout(location = 3) in vec2 in_texcoord;
@@ -232,3 +232,50 @@ in 和 out 变量的位置（location）需要相互对应。在顶点着色器�
 这种位置对应的方式确保了输入和输出变量之间的数据传递是正确的，以便进行后续的渲染操作。
 
 要是数据的Location不对应，就会出现数据传递错误或渲染结果不正确。
+
+### Q5 Varying
+
+在着色器程序中，varying 关键字用于指定在顶点着色器和片段着色器之间进行数据传递的变量。它允许在顶点着色器中计算出的数据在片段着色器中进行插值或者传递给片段着色器使用。
+
+以下是 varying 的一般用法：
+
+在顶点着色器中声明 varying 变量：
+在顶点着色器中，你可以使用 varying 关键字来声明一个变量，该变量的值将会在顶点着色器和片段着色器之间进行插值或传递。
+
+示例代码（顶点着色器）：
+
+```cpp
+varying vec3 interpolatedColor;
+
+void main() {
+    // 计算顶点颜色
+    vec3 vertexColor = vec3(1.0, 0.0, 0.0);
+
+    // 传递颜色给片段着色器
+    interpolatedColor = vertexColor;
+
+    // ...
+}
+```
+
+在片段着色器中使用 varying 变量：
+在片段着色器中，你可以使用与顶点着色器相同名称的 varying 变量来接收从顶点着色器传递过来的插值或数据。
+
+示例代码（片段着色器）：
+
+```cpp
+varying vec3 interpolatedColor;
+
+void main() {
+    // 使用插值后的颜色进行片段着色
+    vec3 fragmentColor = interpolatedColor;
+
+    // ...
+}
+```
+通过使用 varying 变量，你可以在顶点着色器和片段着色器之间传递数据，并在片段着色器中进行插值或使用。这对于在不同阶段之间共享数据以进行渲染非常有用，例如从顶点着色器传递顶点颜色或法线数据到片段着色器进行光照计算。
+
+需要注意的是，varying 关键字在较新版本的着色器语言中已经被弃用，取而代之的是 in 和 out 关键字的使用。在较新的 GLSL 版本中，可以使用 in 和 out 关键字在顶点着色器和片段着色器之间传递数据。
+
+要是使用in和out的话, 需要搭配location来使用；
+
