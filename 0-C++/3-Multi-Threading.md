@@ -161,3 +161,92 @@ notify_all(): 这个函数用于唤醒所有等待在条件变量上的线程。
 
 当调用 notify_one() 时，操作系统会从等待队列中选择一个线程，将其从阻塞状态转换为可运行状态，以便让它有机会执行。哪个线程被唤醒是不确定的，取决于操作系统的调度策略。
 
+### Q5 promise和future
+```cpp
+// Source: https://thispointer.com//c11-multithreading-part-8-stdfuture-stdpromise-and-returning-values-from-thread/
+
+#include <iostream>
+#include <thread>
+#include <future>
+
+void initiazer(std::promise<int>* promObj)
+{
+    std::cout << "Inside Thread" << std::endl;     
+    promObj->set_value(35);
+}
+
+int main()
+{
+    std::promise<int> promiseObj;
+    std::future<int> futureObj = promiseObj.get_future();
+    std::thread th(initiazer, &promiseObj);
+    std::cout << futureObj.get() << std::endl;
+    th.join();
+    return 0;
+}
+```
+以这个例子为例，std::promise和std::future是用于实现多线程编程中的一种同步机制。它们是一对相关的类模板，用于在线程之间传递值并进行线程间的同步操作。
+
+std::promise用于设置一个值或异常(是一个容器)，而std::future用于获取这个值或异常。通过将一个std::promise和一个std::future关联起来，可以在一个线程中设置值或异常，并在另一个线程中获取这个值或异常。
+
+在给定的示例中，我们创建了一个std::promise对象promiseObj，它可以存储一个整数值。然后，我们通过调用get_future()函数获取与该promise对象关联的std::future对象futureObj，用于获取将来设置在promise对象中的值。
+
+然后，我们创建了一个线程th，并将initiazer函数和promiseObj的地址作为参数传递给线程。在initiazer函数中，我们将值35设置在promObj所指向的promise对象中。
+
+在主线程中，我们通过调用futureObj.get()来获取将来（从线程中）设置在promise对象中的值。这个调用将会阻塞，直到promise对象中的值被设置。
+
+在这个简单的示例中，std::promise和std::future模式的作用是在线程之间传递一个整数值。但在实际的应用中，它们有更广泛的用途。一些典型的用途包括：
+
+在一个线程中计算一个值，并将其传递给其他线程进行处理或显示。</br>
+在一个线程中执行一个长时间运行的任务，并在另一个线程中等待其完成。</br>
+在多个线程之间进行协调和同步，以确保线程之间的操作按照特定的顺序进行。</br>
+通过使用std::promise和std::future，我们可以实现线程之间的数据传递和同步，从而更好地利用多核处理器和提高程序的性能。</br>
+
+这就是task based parallelism；
+
+### Q6 异步操作
+```cpp
+auto future = std::async(some_function, arg_1, arg_2);
+```
+std::async是一个函数模板，允许您通过future机制生成线程来执行工作，并通过该机制收集结果。实际上，对std::async的调用会返回一个std::future对象。
+
+需要注意的是，async支持并行处理，但默认构造函数会为您管理线程，并且可能不会在线程中运行传递的函数。您需要显式地告诉它在新线程中运行函数。
+
+由于Linux线程默认按顺序运行，因此强制函数在单独的线程中运行尤为重要。我们稍后会看到如何做到这一点。
+
+最简单的调用方式是将回调函数作为参数传递给async，并让系统为您处理。
+
+```cpp
+auto future = std::async(some_function, arg_1, arg_2);
+```
+
+这行代码的作用是创建一个异步任务，将some_function作为要执行的函数，arg_1和arg_2作为传递给该函数的参数。返回的future对象可以用于获取异步任务的结果。
+
+异步任务会在后台线程中执行，而主线程可以继续执行其他操作，而不需要等待异步任务完成。当需要异步任务的结果时，可以使用future.get()来获取结果。如果异步任务还没有完成，调用get()会阻塞线程直到结果可用。
+
+std::async提供了一种方便的方式来执行异步任务，并通过future机制获取结果。它可以帮助简化并发编程，并充分利用多核处理器的性能。
+
+此外，还有启动策略:
+
+在使用std::async创建异步任务时，您可以选择使用不同的启动策略。有三种可用的启动策略：
+
+std::launch::async：保证在单独的线程中启动任务。</br>
+std::launch::deferred：仅在调用get()函数时才会执行任务。</br>
+std::launch::async | std::launch::deferred：默认行为，系统决定是在单独线程中执行还是在调用get()时执行。</br>
+如果您希望使用std::launch::async启动异步任务，并对线程有一定的控制，您可以将它作为第一个参数传递给std::async函数。</br>
+
+例如：
+
+```cpp
+auto future = std::async(std::launch::async, some_function, arg_1, arg_2);
+```
+
+这行代码表示以std::launch::async启动异步任务，将some_function作为要执行的函数，arg_1和arg_2作为传递给该函数的参数。返回的future对象可以用于获取异步任务的结果。
+
+使用std::launch::async启动策略可以确保任务在单独的线程中执行，从而实现并行处理。这使得您可以更好地控制任务的执行和线程的使用，以提高程序的性能和响应性。
+
+
+
+
+
+
